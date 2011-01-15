@@ -1,0 +1,12 @@
+C:\Users\Engin\Code\SharkIt\SharkIt\bin\Debug\SharkIt.exe.config
+C:\Users\Engin\Code\SharkIt\SharkIt\bin\Debug\SharkIt.exe
+C:\Users\Engin\Code\SharkIt\SharkIt\bin\Debug\SharkIt.pdb
+C:\Users\Engin\Code\SharkIt\SharkIt\bin\Debug\Newtonsoft.Json.dll
+C:\Users\Engin\Code\SharkIt\SharkIt\bin\Debug\Newtonsoft.Json.pdb
+C:\Users\Engin\Code\SharkIt\SharkIt\bin\Debug\Newtonsoft.Json.xml
+C:\Users\Engin\Code\SharkIt\SharkIt\obj\Debug\ResolveAssemblyReference.cache
+C:\Users\Engin\Code\SharkIt\SharkIt\obj\Debug\SharkIt.Main.resources
+C:\Users\Engin\Code\SharkIt\SharkIt\obj\Debug\SharkIt.Properties.Resources.resources
+C:\Users\Engin\Code\SharkIt\SharkIt\obj\Debug\SharkIt.csproj.GenerateResource.Cache
+C:\Users\Engin\Code\SharkIt\SharkIt\obj\Debug\SharkIt.exe
+C:\Users\Engin\Code\SharkIt\SharkIt\obj\Debug\SharkIt.pdb
