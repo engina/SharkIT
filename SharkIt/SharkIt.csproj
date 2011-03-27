@@ -12,7 +12,7 @@
     <AssemblyName>SharkIt</AssemblyName>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
-    <ApplicationIcon>download.ico</ApplicationIcon>
+    <ApplicationIcon>Resources\grooveshark_green.ico</ApplicationIcon>
     <PublishUrl>publish\</PublishUrl>
     <Install>true</Install>
     <InstallFrom>Disk</InstallFrom>
@@ -67,6 +67,12 @@
     <Compile Include="CookieAwareWebClient.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="DownloadJob.cs" />
+    <Compile Include="DownloadSongJob.cs" />
+    <Compile Include="GrooveShark\API.cs" />
+    <Compile Include="GrooveShark\Session.cs" />
+    <Compile Include="GrooveShark\Song.cs" />
+    <Compile Include="GrooveShark\StreamKey.cs" />
     <Compile Include="GS.cs" />
     <Compile Include="Main.cs">
       <SubType>Form</SubType>
@@ -74,7 +80,8 @@
     <Compile Include="Main.Designer.cs">
       <DependentUpon>Main.cs</DependentUpon>
     </Compile>
-    <Compile Include="Playlist.cs" />
+    <Compile Include="GrooveShark\Playlist.cs" />
+    <Compile Include="PlaylistDownloadJob.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="Main.resx">
@@ -85,9 +92,13 @@
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
       <SubType>Designer</SubType>
     </EmbeddedResource>
+    <EmbeddedResource Include="SharkIt.resx">
+      <DependentUpon>SharkIt.cs</DependentUpon>
+    </EmbeddedResource>
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
+      <DesignTime>True</DesignTime>
     </Compile>
     <None Include="app.config" />
     <None Include="Properties\Settings.settings">
@@ -99,9 +110,20 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
+    <Compile Include="SharkIt.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="SharkIt.Designer.cs">
+      <DependentUpon>SharkIt.cs</DependentUpon>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="download.ico" />
+    <None Include="Resources\download_red.ico" />
+    <None Include="Resources\download_orange.ico" />
+    <None Include="Resources\download_green.ico" />
+    <None Include="Resources\grooveshark_red.ico" />
+    <None Include="Resources\grooveshark_yellow.ico" />
+    <None Include="Resources\grooveshark_green.ico" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include="Microsoft.Net.Client.3.5">

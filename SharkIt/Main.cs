@@ -12,41 +12,12 @@ using System.Security.Cryptography;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.IO;
+using SharkIt.GrooveShark;
 
 namespace SharkIt
 {
     public partial class Main : Form
     {
-        class CookieAwareWebClient : WebClient
-        {
-            private CookieContainer cc = new CookieContainer();
-            private string lastPage;
-
-            public string getCookie(string key)
-            {
-                foreach(Cookie cookie in cc.GetCookies(new Uri(URI)))
-                    if (cookie.Name.Equals(key))
-                        return cookie.Value;
-                return null;
-            }
-
-            protected override WebRequest GetWebRequest(System.Uri address)
-            {
-                WebRequest R = base.GetWebRequest(address);
-                if (R is HttpWebRequest)
-                {
-                    HttpWebRequest WR = (HttpWebRequest)R;
-                    WR.CookieContainer = cc;
-                    if (lastPage != null)
-                    {
-                        WR.Referer = lastPage;
-                    }
-                }
-                lastPage = address.ToString();
-                return R;
-            }
-        }
-
         public static string PATH;
 
         private const string URI = "http://listen.grooveshark.com";
@@ -61,7 +32,6 @@ namespace SharkIt
             m_gs.RequestSent += new GS.RequestSentHandler(m_gs_RequestSent);
             m_gs.GotSID += new GS.GotSIDHandler(gs_GotSID);
             m_gs.GotToken += new GS.GotTokenHandler(gs_GotToken);
-            m_gs.GotStream += new GS.GotStreamHandler(m_gs_GotStream);
             m_gs.LoggedIn += new GS.LoggedInHandler(m_gs_LoggedIn);
             m_gs.GotPlaylists += new GS.GotPlaylistsHandler(m_gs_GotPlaylists);
             m_gs.DownloadProgress += new GS.DownloadProgressHandler(m_gs_DownloadProgress);
@@ -142,7 +112,7 @@ namespace SharkIt
             m_gs.GetPlaylists();
         }
 
-        void m_gs_GotStream(object sender, string ip, string key, JObject song)
+        void m_gs_GotStream(JObject song, string ip, string key, object state)
         {
             log("Stream host: " + ip + " key: " + key);
             m_gs.DownloadSong(ip, key, song);
@@ -193,7 +163,7 @@ namespace SharkIt
             foreach (object item in songsCLB.CheckedItems)
             {
                 JObject song = (JObject)item;
-                m_gs.GetSong(song);
+                m_gs.GetStreamKey(song, new GS.GetStreamKeyHandler(m_gs_GotStream), null);
             }
         }
 

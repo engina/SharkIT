@@ -14,6 +14,7 @@ namespace SharkIt
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
+            //Application.Run(new SharkIt());
             Application.Run(new Main());
         }
     }

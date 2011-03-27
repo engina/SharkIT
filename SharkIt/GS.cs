@@ -7,6 +7,7 @@ using Newtonsoft.Json.Linq;
 using System.Collections.Specialized;
 using System.IO;
 using System.Net.Sockets;
+using SharkIt.GrooveShark;
 
 namespace SharkIt
 {
@@ -14,7 +15,6 @@ namespace SharkIt
     {
         public delegate void GotSIDHandler(object sender, string sid);
         public delegate void GotTokenHandler(object sender, string token);
-        public delegate void GotStreamHandler(object sender, string ip, string key, JObject song);
         public delegate void LoggedInHandler(object sender, JObject user);
         public delegate void GotPlaylistsHandler(object sender, LinkedList<Playlist> playlists);
         public delegate void RequestSentHandler(object sender, string request);
@@ -23,7 +23,6 @@ namespace SharkIt
 
         public event GotSIDHandler GotSID;
         public event GotTokenHandler GotToken;
-        public event GotStreamHandler GotStream;
         public event LoggedInHandler LoggedIn;
         public event GotPlaylistsHandler GotPlaylists;
         public event RequestSentHandler RequestSent;
@@ -58,10 +57,6 @@ namespace SharkIt
              */
             TcpClient tcp = new TcpClient();
             tcp.BeginConnect("listen.grooveshark.com", 80, new AsyncCallback(handlerSIDConnect), tcp);
-            /*
-            CookieAwareWebClient wc = new CookieAwareWebClient(m_cc);
-            wc.DownloadDataCompleted += new DownloadDataCompletedEventHandler(getSIDHandler);
-            wc.DownloadDataAsync(m_uri);*/
         }
 
         private void handlerSIDConnect(IAsyncResult ar)
@@ -105,6 +100,7 @@ namespace SharkIt
             }
         }
 
+
         #region Public API
 
         public void Login(string username, string password)
@@ -120,7 +116,9 @@ namespace SharkIt
 
         }
 
-        public void GetSong(JObject song)
+        public delegate void GetStreamKeyHandler(JObject song, string host, string streamKey, object state);
+
+        public void GetStreamKey(JObject song, GetStreamKeyHandler handler, object state)
         {
             int id = Int32.Parse((string)song["SongID"]);
             JObject param = new JObject();
@@ -129,7 +127,7 @@ namespace SharkIt
             param.Add("prefetch", false);
             param.Add("country", m_countryObj);
 
-            Request("getStreamKeyFromSongIDEx", param, new UploadStringCompletedEventHandler(getSongHandler), song);
+            Request("getStreamKeyFromSongIDEx", param, new UploadStringCompletedEventHandler(getSongHandler), new object[]{ song, handler, state });
         }
 
         public void GetPlaylists()
@@ -197,7 +195,7 @@ namespace SharkIt
 
         void _populatePlaylist(Playlist p)
         {
-            UInt64 id = UInt64.Parse((string)p["PlaylistID"]);
+            UInt64 id = (UInt64)p["PlaylistID"];
             JObject param = new JObject();
             param.Add("playlistID", id);
             JObject headerOverride = new JObject();
@@ -239,9 +237,11 @@ namespace SharkIt
 
         private void getSongHandler(object sender, UploadStringCompletedEventArgs e)
         {
-            JObject song = (JObject)e.UserState;
+            object[] state = (object[])e.UserState;
+            JObject song = (JObject)state[0];
+            GetStreamKeyHandler handler = (GetStreamKeyHandler)state[1];
             JObject result = (JObject)JObject.Parse(e.Result)["result"];
-            GotStream(this, (string)result["ip"], (string)result["streamKey"], song);
+            handler(song, (string)result["ip"], (string)result["streamKey"], state[2]);
         }
 
         private void getPlayListHandler(object sender, UploadStringCompletedEventArgs e)
@@ -324,13 +324,6 @@ namespace SharkIt
             string r = SHA1(method + ":" + m_token + ":quitStealinMahShit:" + m_lastRandomizer);
             string t = m_lastRandomizer + r;
             return t;
-        }
-
-        void getSIDHandler(object sender, DownloadDataCompletedEventArgs e)
-        {
-            m_sid = GetCookie("PHPSESSID");
-            GotSID(this, m_sid);
-            GetToken();
         }
 
         private string m_lastRandomizer = "";

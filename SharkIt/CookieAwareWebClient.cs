@@ -13,6 +13,9 @@ namespace SharkIt
 
         public CookieAwareWebClient(CookieContainer cc)
         {
+            //!FIXME multiple instances of CookieAwareWebClient can cause race conditions on the
+            // CookieContainer, since it is not guaranteed to be thread-safe. Possible solution:
+            // wrap it around with a synchronization class.
             m_cc = cc;
         }
 
