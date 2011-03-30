@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:fb="http://www.facebook.com/2008/fbml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <title>sharkit - Grooveshark Downloader</title>
+	
+	<style>
+	body
+	{
+		font-family: 'lucida grande', tahoma, verdana, arial, sans-serif;
+	}
+
+	.logo {
+		font-size: 25px;
+		font-weight: bold;
+	}
+
+	.body
+	{
+		font-size: 12px;
+		margin: 10px;
+		width: 620px;
+	}
+
+	.download
+	{
+		font-size: 20px;
+		font-weight: bold;
+		text-align: center;
+		width: 620px;
+	}
+img
+{
+	border: 0px;
+}
+
+hr
+{
+	border: 1px solid #DDD;
+	width: 100%;
+	text-align: left;
+}
+	</style>
+</head>
+
+  </head>
+  <body>
+
+<span class="logo" style="color: orange">Shark</span><span class="logo" style="color:black">IT</span>
+<fb:like action ="recommend" href="http://engin.bzzzt.biz/sharkit/" show_faces="false"></fb:like>
+<div style="font-size: 9px; color: grey; margin-top: -3px; border-top: 1px solid grey; width: 120px">Grooveshark downloader</div>
+<div class="body">
+	SharkIT is a Grooveshark downloader. It allows you to fetch your playlists, select songs in your playlists and download them all in parallel, with one click. I've coded this in a few hours, it is full of bugs, it does not handle errors (you won't be warned if you typed your password wrong, etc). But it looks like working for now.
+	<p>
+	BTW, anyone can think of a cool name ?
+	<p>
+	<a title="Download" href="SharkIt.exe">
+		<img src="screenshot.png" title="Download">
+	</a>
+</div>
+
+<div class="download">
+	<a style="text-decoration: none; color: orange" ="Download" href="SharkIT-v02.exe">Download v0.2 (1479kb)</a><br/>
+	<span style="font-size: 12px; color: gray; font-weight: normal">Single executable, no-need to install.</span>
+	
+</div><p/>
+
+<div>
+<h3>Changelog</h3>
+<h4>20110330</h4>
+<ul>
+	<li>Compatible with the new grooveshark (there was a sligth change that caused an error)</li>
+	<li>Login buttons is enabled much faster since now I'm using a much more efficient session retrieving scheme</li>
+	<li>Should work on Mac OS X better, since, now I cared about potability a bit.</li>
+	<li>Now, handles bad file names (such as songs with a ?)</li>
+</ul>
+</div>
+<hr>
+<h3>TODO</h3>
+<h4>20110330</h4>
+<ul>
+	<li>Remove .NET 3.5 dependency</li>
+	<li>Generate much smaller binary</li>
+	<li>Support segmented downloads for single files</li>
+	<li>Innovate a clean and usefull download management interface</li>
+</ul>
+</div>
+<p>
+	<fb:comments xid="sharkit" title="SharkIT! Grooveshark downloader" numposts="10" width="625" publish_feed="true"	></fb:comments>
+	
+    <div id="fb-root"></div>
+	
+    <script>
+      window.fbAsyncInit = function() {
+        FB.init({appId: '134315746633364', status: true, cookie: true,
+                 xfbml: true});
+      };
+      (function() {
+        var e = document.createElement('script');
+        e.type = 'text/javascript';
+        e.src = document.location.protocol +
+          '//connect.facebook.net/en_US/all.js';
+        e.async = true;
+        document.getElementById('fb-root').appendChild(e);
+      }());
+    </script>
+	<script type="text/javascript"> 
+		var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+		document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+	</script> 
+
+	<script type="text/javascript"> 
+		try {
+			var pageTracker = _gat._getTracker("UA-12273926-1");
+			pageTracker._trackPageview();
+		} catch(err) {}
+	</script>
+
+  </body>
+</html>
