@@ -41,6 +41,12 @@ hr
 	width: 100%;
 	text-align: left;
 }
+
+.todo_done
+{
+	text-decoration: line-through;
+}
+
 	</style>
 </head>
 
@@ -56,18 +62,24 @@ hr
 	BTW, anyone can think of a cool name ?
 	<p>
 	<a title="Download" href="SharkIt.exe">
-		<img src="screenshot.png" title="Download">
+		<img src="screenshot.png?v3" title="Download">
 	</a>
 </div>
 
 <div class="download">
-	<a style="text-decoration: none; color: orange" ="Download" href="SharkIT-v02.exe">Download v0.2 (1479kb)</a><br/>
+	<a style="text-decoration: none; color: orange" ="Download" href="SharkIt-v03.exe">Download v0.3 (57kb)</a><br/>
 	<span style="font-size: 12px; color: gray; font-weight: normal">Single executable, no-need to install.</span>
-	
 </div><p/>
 
 <div>
 <h3>Changelog</h3>
+<h4>20110401</h4>
+<ul>
+	<li>Now the binary is 57kb and only dependency is .NET 2.0 (i.e. should work on XP without much effort)</li>
+</ul>
+</div>
+<hr>
+
 <h4>20110330</h4>
 <ul>
 	<li>Compatible with the new grooveshark (there was a sligth change that caused an error)</li>
@@ -80,8 +92,9 @@ hr
 <h3>TODO</h3>
 <h4>20110330</h4>
 <ul>
-	<li>Remove .NET 3.5 dependency</li>
-	<li>Generate much smaller binary</li>
+	<li>Stop song list flickering while updating download percentages</li>
+	<li class="todo_done">Remove .NET 3.5 dependency</li>
+	<li class="todo_done">Generate much smaller binary</li>
 	<li>Support segmented downloads for single files</li>
 	<li>Innovate a clean and usefull download management interface</li>
 </ul>

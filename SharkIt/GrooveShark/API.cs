@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 
 namespace SharkIt.GrooveShark
@@ -8,6 +7,9 @@ namespace SharkIt.GrooveShark
     public class API
     {
         Session m_session;
+        
+        public delegate void ReadyHandler(object sender);
+        public event ReadyHandler Ready;
 
         public API() : this(new Session())
         {
@@ -16,6 +18,13 @@ namespace SharkIt.GrooveShark
         public API(Session session)
         {
             m_session = session;
+            m_session.GotToken += new Session.GotTokenHandler(m_session_GotToken);
+        }
+
+        void m_session_GotToken(object sender, string token)
+        {
+            if (Ready != null)
+                Ready(this);
         }
 
 

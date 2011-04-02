@@ -59,26 +59,5 @@ namespace SharkIt.Properties {
                 resourceCulture = value;
             }
         }
-        
-        internal static System.Drawing.Icon download_green {
-            get {
-                object obj = ResourceManager.GetObject("download_green", resourceCulture);
-                return ((System.Drawing.Icon)(obj));
-            }
-        }
-        
-        internal static System.Drawing.Icon download_orange {
-            get {
-                object obj = ResourceManager.GetObject("download_orange", resourceCulture);
-                return ((System.Drawing.Icon)(obj));
-            }
-        }
-        
-        internal static System.Drawing.Icon download_red {
-            get {
-                object obj = ResourceManager.GetObject("download_red", resourceCulture);
-                return ((System.Drawing.Icon)(obj));
-            }
-        }
     }
 }

@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using Newtonsoft.Json.Linq;
 using System.Net.Sockets;
 using System.Net;
+using System.Collections;
 
 namespace SharkIt.GrooveShark
 {
@@ -21,7 +20,7 @@ namespace SharkIt.GrooveShark
 
         private string m_sid;
         private string m_token;
-        private JObject m_countryObj = new JObject();
+        private Hashtable m_countryObj = new Hashtable();
         private bool m_ready = false;
         private CookieContainer m_cc = new CookieContainer();
 
@@ -90,13 +89,13 @@ namespace SharkIt.GrooveShark
 
             if (headerOverrides != null)
             {
-                foreach (JProperty p in headerOverrides.Properties())
+                IDictionaryEnumerator e = headerOverrides.GetEnumerator();
+                while (e.MoveNext())
                 {
-                    JProperty p2 = header.Property(p.Name);
-                    if (p2 != null)
-                        p2.Value = p.Value;
+                    if (header.ContainsKey(e.Key))
+                        header[e.Key] = e.Value;
                     else
-                        header.Add(p);
+                        header.Add(e.Key, e.Value);
                 }
             }
             string requestStr = request.ToString().Replace("\n", "").Replace(" ", "").Replace("\r", "");
@@ -113,7 +112,7 @@ namespace SharkIt.GrooveShark
             object[] state = (object[])args.UserState;
             RequestHandler handler = (RequestHandler)state[0];
             object calleeState = state[1];
-            handler(this, JObject.Parse(args.Result), calleeState);
+            handler(this, (JObject)JSON.JsonDecode(args.Result), calleeState);
         }
 
         private string GenerateToken(string method)
@@ -167,7 +166,8 @@ namespace SharkIt.GrooveShark
                         {
                             m_sid = value;
                             m_cc.Add(new Cookie(name, value, "/", "http://listen.grooveshark.com"));
-                            GotSID(this, m_sid);
+                            if(GotSID != null)
+                                GotSID(this, m_sid);
                             GetToken();
                             strm.Close();
                         }
@@ -181,13 +181,6 @@ namespace SharkIt.GrooveShark
             JObject parameters = new JObject();
             parameters["secretKey"] =  MD5SUM(m_sid);
             Request("getCommunicationToken", parameters, ClientType.HTML, new RequestHandler(getCommunicationTokenHandler), null);
-            /*
-            CookieAwareWebClient wc = new CookieAwareWebClient(m_cc);
-            string secret = MD5SUM(m_sid);
-            string getCommunicationToken = "{\"parameters\":{\"secretKey\":\"" + secret + "\"},\"header\":{\"country\":{\"ID\":\"214\",\"CC1\":\"0\",\"CC2\":\"0\",\"CC3\":\"0\",\"IPR\":\"9581\",\"CC4\":\"2097152\"},\"privacy\":0,\"clientRevision\":\"20101222.03\",\"uuid\":\"6BFBFCDE-B44F-4EC5-AF69-76CCC4A2DAD0\",\"session\":\"" + m_sid + "\",\"client\":\"htmlshark\"},\"method\":\"getCommunicationToken\"}";
-            wc.UploadStringCompleted += new UploadStringCompletedEventHandler(getTokenHandler);
-            wc.UploadStringAsync(new Uri("http://listen.grooveshark.com/more.php?getCommunicationToken"), getCommunicationToken);
-             * */
         }
 
         public void getCommunicationTokenHandler(Session gs, JObject response, object state)

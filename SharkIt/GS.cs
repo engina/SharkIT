@@ -1,13 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using System.Net;
-using Newtonsoft.Json.Linq;
 using System.Collections.Specialized;
 using System.IO;
 using System.Net.Sockets;
 using SharkIt.GrooveShark;
+using System.Windows.Forms;
+using System.Collections;
 
 namespace SharkIt
 {
@@ -133,7 +133,7 @@ namespace SharkIt
         public void GetPlaylists()
         {
             JObject param = new JObject();
-            param.Add("userID", (int)m_user.Property("userID").Value);
+            param.Add("userID", m_user["userID"]);
             JObject headerOverride = new JObject();
             headerOverride.Add("client", "htmlshark");
 
@@ -142,7 +142,7 @@ namespace SharkIt
 
         public void DownloadSong(string host, string key, JObject song)
         {
-            if (song.Property("Downloaded") != null)
+            if (song.ContainsKey("Downloaded"))
             {
                 return;
             }
@@ -160,10 +160,43 @@ namespace SharkIt
             string filename = (string)song["ArtistName"] + " - " + (string)song["Name"] + ".mp3";
             song["Downloaded"] = 100;
             string dst = "";
+            string path = "";
             if (Main.PATH.Length != 0)
-                dst = Main.PATH + "\\";
-            dst += filename;
-            FileStream fs = new FileStream(dst, FileMode.Create);
+                path = Main.PATH + Path.DirectorySeparatorChar;
+            dst = path + filename;
+            FileStream fs = null;
+            try
+            {
+                fs = new FileStream(dst, FileMode.Create);
+            }
+            catch (Exception ex)
+            {
+                char[] invalf = Path.GetInvalidFileNameChars();
+                foreach (char c in invalf)
+                    filename = filename.Replace(c, '_');
+                dst = path + filename;
+                try
+                {
+                    fs = new FileStream(dst, FileMode.Create);
+                }
+                catch (Exception exc)
+                {
+                    for (int i = 0; i < dst.Length; i++)
+                    {
+                        if (!Char.IsLetterOrDigit(dst[i]))
+                            filename = filename.Replace(dst[i], '_');
+                        dst = path + filename;
+                    }
+                    try
+                    {
+                        fs = new FileStream(dst, FileMode.Create);
+                    }
+                    catch (Exception exc2)
+                    {
+                        MessageBox.Show("Could not save the file buddy. (" + exc2.Message + ")", "Oops!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                }
+            }
             fs.Write(e.Result, 0, e.Result.Length);
             fs.Close();
         }
@@ -182,8 +215,10 @@ namespace SharkIt
         void getPlaylistsHandler(object sender, UploadStringCompletedEventArgs e)
         {
             m_playlists = new LinkedList<Playlist>();
-            JArray pl = (JArray)JObject.Parse(e.Result)["result"]["Playlists"];
-            foreach (JToken t in pl)
+            JObject response = (JObject) JSON.JsonDecode(e.Result);
+            JObject result = (JObject) response["result"];
+            ArrayList pl = (ArrayList)(result["Playlists"]);
+            foreach (JObject t in pl)
             {
                 Playlist p = new Playlist((JObject)t);
                 m_playlists.AddLast(p);
@@ -195,9 +230,8 @@ namespace SharkIt
 
         void _populatePlaylist(Playlist p)
         {
-            UInt64 id = (UInt64)p["PlaylistID"];
             JObject param = new JObject();
-            param.Add("playlistID", id);
+            param.Add("playlistID", p["PlaylistID"]);
             JObject headerOverride = new JObject();
             headerOverride.Add("client", "htmlshark");
             Request("playlistGetSongs", param, new UploadStringCompletedEventHandler(populatePlaylistHandler), (object)p, headerOverride);
@@ -206,7 +240,9 @@ namespace SharkIt
         private void populatePlaylistHandler(object sender, UploadStringCompletedEventArgs e)
         {
             Playlist p = (Playlist)e.UserState;
-            JArray songs = (JArray)JObject.Parse(e.Result)["result"]["Songs"];
+            JObject response = (JObject)JSON.JsonDecode(e.Result);
+            JObject result = (JObject)response["result"];
+            ArrayList songs = (ArrayList)result["Songs"];
             p["Songs"] = songs;
             SongListFetched(this, p);
         }
@@ -224,8 +260,8 @@ namespace SharkIt
 
         private void loginHandler(object sender, UploadStringCompletedEventArgs e)
         {
-            JObject param = JObject.Parse(e.Result);
-            m_user = (JObject)param.Property("result").Value;
+            JObject response = (JObject)JSON.JsonDecode(e.Result);
+            m_user = (JObject)response["result"];
             LoggedIn(this, m_user);
         }
 
@@ -240,13 +276,13 @@ namespace SharkIt
             object[] state = (object[])e.UserState;
             JObject song = (JObject)state[0];
             GetStreamKeyHandler handler = (GetStreamKeyHandler)state[1];
-            JObject result = (JObject)JObject.Parse(e.Result)["result"];
+            JObject result = (JObject)((JObject) JSON.JsonDecode(e.Result))["result"];
             handler(song, (string)result["ip"], (string)result["streamKey"], state[2]);
         }
 
         private void getPlayListHandler(object sender, UploadStringCompletedEventArgs e)
         {
-            JObject result = (JObject)JObject.Parse(e.Result).Property("result").Value;
+            JObject result = (JObject)((JObject)JSON.JsonDecode(e.Result))["result"];
         }
 
         #endregion
@@ -301,16 +337,16 @@ namespace SharkIt
 
             if (headerOverride != null)
             {
-                foreach (JProperty p in headerOverride.Properties())
+                IDictionaryEnumerator e = headerOverride.GetEnumerator();
+                while (e.MoveNext())
                 {
-                    JProperty p2 = header.Property(p.Name);
-                    if (p2 != null)
-                        p2.Value = p.Value;
+                    if (header.ContainsKey(e.Key))
+                        header[e.Key] = e.Value;
                     else
-                        header.Add(p);
+                        header.Add(e.Key, e.Value);
                 }
             }
-            string requestStr = request.ToString().Replace("\n", "").Replace(" ", "").Replace("\r","");
+            string requestStr = JSON.JsonEncode(request).Replace("\n", "").Replace(" ", "").Replace("\r","");
             CookieAwareWebClient wc = new CookieAwareWebClient(m_cc);
             wc.UploadStringCompleted += handler;
             wc.UploadStringAsync(new Uri(uri + method), "POST", requestStr, handlerToken);
@@ -348,8 +384,8 @@ namespace SharkIt
 
         void getTokenHandler(object sender, UploadStringCompletedEventArgs e)
         {
-            JObject response = JObject.Parse(e.Result);
-            string token = (string)response.Property("result").Value;
+            JObject response = (JObject)JSON.JsonDecode(e.Result);
+            string token = (string) response["result"];
             m_token = token;
             GotToken(this, token);
         }

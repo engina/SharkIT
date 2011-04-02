@@ -3,12 +3,10 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
-using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 using SharkIt.Properties;
 using SharkIt.GrooveShark;
-using Newtonsoft.Json.Linq;
 
 namespace SharkIt
 {
@@ -22,14 +20,12 @@ namespace SharkIt
         public SharkIt()
         {
             InitializeComponent();
-            JObject test = new JObject();
-            object key = (object)test["Hastir"];
             WindowState = FormWindowState.Minimized;
             m_path = Properties.Settings.Default.Path;
             ShowInTaskbar = false;
             // Ignore about localization for now
             systemTray.Text = "Connecting...";
-            systemTray.Icon = Resources.download_red;
+            //systemTray.Icon = Resources.download_red;
             systemTray.BalloonTipClicked += new EventHandler(systemTray_BalloonTipClicked);
 
             m_session = new Session();
@@ -46,13 +42,13 @@ namespace SharkIt
         void m_gs_GotToken(object sender, string token)
         {
             systemTray.Text = "Ready!";
-            systemTray.Icon = Resources.download_green;
+            //systemTray.Icon = Resources.download_green;
         }
 
         void m_gs_GotSID(object sender, string sid)
         {
             systemTray.Text = "Right about there...";
-            systemTray.Icon = Resources.download_orange;
+            //systemTray.Icon = Resources.download_orange;
         }
 
         void ClipboardWatcher(object sender, EventArgs e)

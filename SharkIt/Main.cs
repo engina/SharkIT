@@ -9,10 +9,9 @@ using System.Net;
 using System.Collections.Specialized;
 using System.Threading;
 using System.Security.Cryptography;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using System.IO;
 using SharkIt.GrooveShark;
+using System.Collections;
 
 namespace SharkIt
 {
@@ -22,12 +21,21 @@ namespace SharkIt
 
         private const string URI = "http://listen.grooveshark.com";
         GS m_gs;
+        API m_api;
         public Main()
         {
             InitializeComponent();
             PATH = Properties.Settings.Default.Path;
             userNameTB.Text = Properties.Settings.Default.Username;
             passTB.Text = Properties.Settings.Default.Password;
+            /*
+            m_api = new API();
+            m_api.Ready += new API.ReadyHandler(m_api_Ready);
+            */
+
+            // Use the icon from the application binary instead of saving another copy in resource file
+            this.Icon = Icon.ExtractAssociatedIcon(Application.ExecutablePath);
+
             m_gs = new GS();
             m_gs.RequestSent += new GS.RequestSentHandler(m_gs_RequestSent);
             m_gs.GotSID += new GS.GotSIDHandler(gs_GotSID);
@@ -36,14 +44,25 @@ namespace SharkIt
             m_gs.GotPlaylists += new GS.GotPlaylistsHandler(m_gs_GotPlaylists);
             m_gs.DownloadProgress += new GS.DownloadProgressHandler(m_gs_DownloadProgress);
             m_gs.SongListFetched += new GS.SongListFetchedHandler(m_gs_SongListFetched);
-            playlsitsCLB.SelectedValueChanged += new EventHandler(playlsitsCLB_SelectedValueChanged);
+            playlistsCLB.SelectedValueChanged += new EventHandler(playlsitsCLB_SelectedValueChanged);
             songsCLB.Format += new ListControlConvertEventHandler(songsCLB_Format);
+            playlistsCLB.Format += new ListControlConvertEventHandler(playlistsCLB_Format);
+        }
+
+        void playlistsCLB_Format(object sender, ListControlConvertEventArgs e)
+        {
+            e.Value = ((Playlist)e.ListItem)["Name"];
+        }
+
+        void m_api_Ready(object sender)
+        {
+            connectB.Text = "Login";
         }
 
         void m_gs_SongListFetched(object sender, Playlist playlist)
         {
-            if (playlsitsCLB.SelectedItem == playlist)
-                playlsitsCLB_SelectedValueChanged(playlsitsCLB, null);
+            if (playlistsCLB.SelectedItem == playlist)
+                playlsitsCLB_SelectedValueChanged(playlistsCLB, null);
         }
 
         void m_gs_DownloadProgress(object sender, JObject song, long percentage)
@@ -55,15 +74,14 @@ namespace SharkIt
         void songsCLB_Format(object sender, ListControlConvertEventArgs e)
         {
             JObject song = (JObject)e.ListItem;
-            if (song.Property("Empty") != null)
+            if (song.ContainsKey("Empty"))
             {
                 e.Value = "Loading...";
                 return;
             }
-            JProperty p = song.Property("Downloaded");
             string str = (string)song["ArtistName"] + " - " + (string)song["Name"] + ".mp3";
-            if( p != null)
-                str += " ("+(int)p.Value+"%)";
+            if(song.ContainsKey("Downloaded"))
+                str += " ("+song["Downloaded"].ToString()+"%)";
             e.Value = str;
         }
         private object m_lastSelected = null;
@@ -71,13 +89,12 @@ namespace SharkIt
         {
             CheckedListBox lb = (CheckedListBox)sender;
             Playlist p = (Playlist)lb.SelectedItem;
-
             if (m_lastSelected == p) return;
             m_lastSelected = p;
 
             if (p == null) return;
             songsCLB.Items.Clear();
-            if (p.Property("Songs") == null)
+            if (!p.ContainsKey("Songs"))
             {
                 JObject loading = new JObject();
                 loading["Empty"] = "true";
@@ -85,9 +102,10 @@ namespace SharkIt
                 songsCLB.Enabled = false;
                 return;
             }
-            foreach (JToken t in p["Songs"])
+            IEnumerator en = ((ArrayList)p["Songs"]).GetEnumerator();
+            while (en.MoveNext())
             {
-                songsCLB.Items.Add((JObject)t);
+                songsCLB.Items.Add((JObject)en.Current);
             }
             songsCLB.Enabled = true;
         }
@@ -101,13 +119,23 @@ namespace SharkIt
         {
             log("Playlists: " + playlists.ToString());
             foreach (Playlist p in playlists)
-                playlsitsCLB.Items.Add(p);
+                playlistsCLB.Items.Add(p);
             connectB.Text = "logged in";
         }
 
         void m_gs_LoggedIn(object sender, JObject user)
         {
             log("Logged in as: " + user.ToString());
+
+            if ((double)user["userID"] == 0.0)
+            {
+                MessageBox.Show(this, "Check your username and password.", "O-oh! Can't log in", MessageBoxButtons.OK, MessageBoxIcon.Error);
+
+                connectB.Enabled = true;
+                connectB.Text = "log-in";
+                return;
+            }
+
             connectB.Text = "getting playlists";
             m_gs.GetPlaylists();
         }
@@ -163,6 +191,7 @@ namespace SharkIt
             foreach (object item in songsCLB.CheckedItems)
             {
                 JObject song = (JObject)item;
+                // downloadsCBL.Items.Add(new DownloadSongJob(new Song(song)));
                 m_gs.GetStreamKey(song, new GS.GetStreamKeyHandler(m_gs_GotStream), null);
             }
         }
