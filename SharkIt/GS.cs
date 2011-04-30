@@ -30,7 +30,7 @@ namespace SharkIt
         public event SongListFetchedHandler SongListFetched;
 
         private CookieContainer m_cc = new CookieContainer();
-        private Uri m_uri = new Uri("http://listen.grooveshark.com");
+        private Uri m_uri = new Uri("http://grooveshark.com");
         private string m_sid = null;
         private string m_token = null;
         private string m_username;
@@ -56,7 +56,7 @@ namespace SharkIt
              * first few bytes off the network and tries to parse the cookie asap.
              */
             TcpClient tcp = new TcpClient();
-            tcp.BeginConnect("listen.grooveshark.com", 80, new AsyncCallback(handlerSIDConnect), tcp);
+            tcp.BeginConnect("grooveshark.com", 80, new AsyncCallback(handlerSIDConnect), tcp);
         }
 
         private void handlerSIDConnect(IAsyncResult ar)
@@ -64,7 +64,7 @@ namespace SharkIt
             if (!ar.IsCompleted) return;
             TcpClient tcp = (TcpClient)ar.AsyncState;
             NetworkStream strm = tcp.GetStream();
-            byte[] req = Encoding.ASCII.GetBytes("GET / HTTP/1.1\r\nHost: listen.grooveshark.com\r\nConnection: Keep-Alive\r\n\r\n");
+            byte[] req = Encoding.ASCII.GetBytes("GET / HTTP/1.1\r\nHost: grooveshark.com\r\nConnection: Keep-Alive\r\n\r\n");
             strm.Write(req, 0, req.Length);
             byte[] buf = new byte[512];
             strm.BeginRead(buf, 0, 512, new AsyncCallback(handleSIDRead), new object[]{buf, strm});
@@ -90,7 +90,7 @@ namespace SharkIt
                         if (name == "PHPSESSID")
                         {
                             m_sid = value;
-                            m_cc.Add(new Cookie(name, value, "/", "http://listen.grooveshark.com"));
+                            m_cc.Add(new Cookie(name, value, "/", "http://grooveshark.com"));
                             GotSID(this, m_sid);
                             GetToken();
                             strm.Close();
@@ -112,7 +112,7 @@ namespace SharkIt
             nvc.Add("password", password);
             CookieAwareWebClient wc = new CookieAwareWebClient(m_cc);
             wc.UploadValuesCompleted += new UploadValuesCompletedEventHandler(wc_UploadValuesCompleted);
-            wc.UploadValuesAsync(new Uri("https://listen.grooveshark.com/empty.php"), nvc);
+            wc.UploadValuesAsync(new Uri("https://grooveshark.com/empty.php"), nvc);
 
         }
 
@@ -147,6 +147,7 @@ namespace SharkIt
                 return;
             }
             CookieAwareWebClient wc = new CookieAwareWebClient(m_cc);
+            //!FIXME Segmented downloads
             NameValueCollection nvc = new NameValueCollection();
             nvc.Add("streamKey", key);
             wc.UploadProgressChanged += new UploadProgressChangedEventHandler(wc_UploadProgressChanged);
@@ -290,7 +291,7 @@ namespace SharkIt
 
         private JObject Request(string method, JObject parameters, UploadStringCompletedEventHandler handler, object handlerToken, JObject header)
         {
-            return _Request("http://listen.grooveshark.com/more.php?", method, parameters, handler, handlerToken, header);
+            return _Request("http://grooveshark.com/more.php?", method, parameters, handler, handlerToken, header);
         }
 
         private JObject SecureRequest(string method, JObject parameters, UploadStringCompletedEventHandler handler, object handlerToken, JObject header)
@@ -300,7 +301,7 @@ namespace SharkIt
 
         private JObject Request(string method, JObject parameters, UploadStringCompletedEventHandler handler, object handlerToken)
         {
-            return _Request("http://listen.grooveshark.com/more.php?", method, parameters, handler, handlerToken, null);
+            return _Request("http://grooveshark.com/more.php?", method, parameters, handler, handlerToken, null);
         }
 
         private JObject SecureRequest(string method, JObject parameters, UploadStringCompletedEventHandler handler, object handlerToken)
@@ -310,7 +311,7 @@ namespace SharkIt
 
         private JObject Request(string method, JObject parameters, UploadStringCompletedEventHandler handler)
         {
-            return _Request("http://listen.grooveshark.com/more.php?", method, parameters, handler, null, null);
+            return _Request("http://grooveshark.com/more.php?", method, parameters, handler, null, null);
         }
 
         private JObject SecureRequest(string method, JObject parameters, UploadStringCompletedEventHandler handler)
@@ -379,7 +380,7 @@ namespace SharkIt
             string secret = MD5SUM(m_sid);
             string getCommunicationToken = "{\"parameters\":{\"secretKey\":\"" + secret + "\"},\"header\":{\"country\":{\"ID\":\"214\",\"CC1\":\"0\",\"CC2\":\"0\",\"CC3\":\"0\",\"IPR\":\"9581\",\"CC4\":\"2097152\"},\"privacy\":0,\"clientRevision\":\"20101222.03\",\"uuid\":\"6BFBFCDE-B44F-4EC5-AF69-76CCC4A2DAD0\",\"session\":\"" + m_sid + "\",\"client\":\"htmlshark\"},\"method\":\"getCommunicationToken\"}";
             wc.UploadStringCompleted += new UploadStringCompletedEventHandler(getTokenHandler);
-            wc.UploadStringAsync(new Uri("http://listen.grooveshark.com/more.php?getCommunicationToken"), getCommunicationToken);
+            wc.UploadStringAsync(new Uri("http://grooveshark.com/more.php?getCommunicationToken"), getCommunicationToken);
         }
 
         void getTokenHandler(object sender, UploadStringCompletedEventArgs e)
