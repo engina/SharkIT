@@ -328,10 +328,10 @@ namespace SharkIt
             header.Add("token", t);
             header.Add("session", m_sid);
             header.Add("client", "jsqueue");
-            header.Add("clientRevision", "20101012.37");
+            header.Add("clientRevision", "20110722.09");
             header.Add("privacy", 0);
             // Somehow this uuid is important, and I don't really know what it is, the UUID of the JSQueue flash object ?
-            header.Add("uuid", "6BFBFCDE-B44F-4EC5-AF69-76CCC4A2DAD0");
+            header.Add("uuid", "03ACA04C-42C9-4BA5-A2ED-C9241040A88D");
             header.Add("country", m_countryObj);
             request.Add("header", header);
             request.Add("method", method);
@@ -358,7 +358,7 @@ namespace SharkIt
         private string GenerateToken(string method)
         {
             m_lastRandomizer = Randomize();
-            string r = SHA1(method + ":" + m_token + ":quitStealinMahShit:" + m_lastRandomizer);
+            string r = SHA1(method + ":" + m_token + ":neverGonnaGiveYouUp:" + m_lastRandomizer);
             string t = m_lastRandomizer + r;
             return t;
         }
@@ -378,7 +378,7 @@ namespace SharkIt
         {
             CookieAwareWebClient wc = new CookieAwareWebClient(m_cc);
             string secret = MD5SUM(m_sid);
-            string getCommunicationToken = "{\"parameters\":{\"secretKey\":\"" + secret + "\"},\"header\":{\"country\":{\"ID\":\"214\",\"CC1\":\"0\",\"CC2\":\"0\",\"CC3\":\"0\",\"IPR\":\"9581\",\"CC4\":\"2097152\"},\"privacy\":0,\"clientRevision\":\"20101222.03\",\"uuid\":\"6BFBFCDE-B44F-4EC5-AF69-76CCC4A2DAD0\",\"session\":\"" + m_sid + "\",\"client\":\"htmlshark\"},\"method\":\"getCommunicationToken\"}";
+            string getCommunicationToken = "{\"parameters\":{\"secretKey\":\"" + secret + "\"},\"header\":{\"country\":{\"ID\":\"214\",\"CC1\":\"0\",\"CC2\":\"0\",\"CC3\":\"0\",\"IPR\":\"9581\",\"CC4\":\"2097152\"},\"privacy\":0,\"clientRevision\":\"20110722.09\",\"uuid\":\"03ACA04C-42C9-4BA5-A2ED-C9241040A88D\",\"session\":\"" + m_sid + "\",\"client\":\"htmlshark\"},\"method\":\"getCommunicationToken\"}";
             wc.UploadStringCompleted += new UploadStringCompletedEventHandler(getTokenHandler);
             wc.UploadStringAsync(new Uri("http://grooveshark.com/more.php?getCommunicationToken"), getCommunicationToken);
         }
