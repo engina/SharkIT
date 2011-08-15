@@ -321,11 +321,9 @@ namespace SharkIt
 
         private JObject _Request(string uri, string method, JObject parameters, UploadStringCompletedEventHandler handler, object handlerToken, JObject headerOverride)
         {
-            string t = GenerateToken(method);
             JObject request = new JObject();
             request.Add("parameters", parameters);
             JObject header = new JObject();
-            header.Add("token", t);
             header.Add("session", m_sid);
             header.Add("client", "jsqueue");
             header.Add("clientRevision", "20110722.09");
@@ -347,6 +345,10 @@ namespace SharkIt
                         header.Add(e.Key, e.Value);
                 }
             }
+
+            string t = GenerateToken(method, (string)header["client"]);
+            header.Add("token", t);
+
             string requestStr = JSON.JsonEncode(request).Replace("\n", "").Replace(" ", "").Replace("\r","");
             CookieAwareWebClient wc = new CookieAwareWebClient(m_cc);
             wc.UploadStringCompleted += handler;
@@ -355,10 +357,11 @@ namespace SharkIt
             return request;
         }
 
-        private string GenerateToken(string method)
+        private string GenerateToken(string method, string client)
         {
             m_lastRandomizer = Randomize();
-            string r = SHA1(method + ":" + m_token + ":neverGonnaGiveYouUp:" + m_lastRandomizer);
+            string secret = client == "htmlshark" ? "neverGonnaGiveYouUp" : "neverGonnaLetYouDown";
+            string r = SHA1(method + ":" + m_token + ":" + secret +":" + m_lastRandomizer);
             string t = m_lastRandomizer + r;
             return t;
         }
