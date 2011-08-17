@@ -64,10 +64,19 @@ namespace SharkIt
                 playlsitsCLB_SelectedValueChanged(playlistsCLB, null);
         }
 
+        delegate void DownloadProgress(object s, JObject song, long p);
         void m_gs_DownloadProgress(object sender, JObject song, long percentage)
         {
+            if (InvokeRequired)
+            {
+                BeginInvoke(new DownloadProgress(m_gs_DownloadProgress), new object[] { sender, song, percentage });
+                return;
+            }
+
             log("Downloading " + (string)song["Name"] + " " + percentage + "%");
-            songsCLB.Invalidate();
+            int i = songsCLB.Items.IndexOf(song);
+            Rectangle r = songsCLB.GetItemRectangle(i);
+            songsCLB.Invalidate(r);
         }
 
         void songsCLB_Format(object sender, ListControlConvertEventArgs e)
