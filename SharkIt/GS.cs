@@ -39,7 +39,7 @@ namespace SharkIt
         private LinkedList<Playlist> m_playlists;
 
         JObject m_countryObj = new JObject();
-        
+
         public GS()
         {
             /** just create some default country for now **/
@@ -67,7 +67,7 @@ namespace SharkIt
             byte[] req = Encoding.ASCII.GetBytes("GET / HTTP/1.1\r\nHost: grooveshark.com\r\nConnection: Keep-Alive\r\n\r\n");
             strm.Write(req, 0, req.Length);
             byte[] buf = new byte[512];
-            strm.BeginRead(buf, 0, 512, new AsyncCallback(handleSIDRead), new object[]{buf, strm});
+            strm.BeginRead(buf, 0, 512, new AsyncCallback(handleSIDRead), new object[] { buf, strm } );
         }
 
         private void handleSIDRead(IAsyncResult ar)
@@ -81,7 +81,7 @@ namespace SharkIt
             {
                 if (header.StartsWith("Set-Cookie: "))
                 {
-                    string[] cookies = header.Substring(12).Split(new char[]{';'});
+                    string[] cookies = header.Substring(12).Split(new char[] { ';' });
                     foreach (string cookie in cookies)
                     {
                         string[] nameValue = cookie.Split(new char[] { '=' });
@@ -127,7 +127,7 @@ namespace SharkIt
             param.Add("prefetch", false);
             param.Add("country", m_countryObj);
 
-            Request("getStreamKeyFromSongIDEx", param, new UploadStringCompletedEventHandler(getSongHandler), new object[]{ song, handler, state });
+            Request("getStreamKeyFromSongIDEx", param, new UploadStringCompletedEventHandler(getSongHandler), new object[] { song, handler, state });
         }
 
         public void GetPlaylists()
@@ -142,24 +142,36 @@ namespace SharkIt
 
         public void DownloadSong(string host, string key, JObject song)
         {
-            if (song.ContainsKey("Downloaded"))
+            if (song.ContainsKey("Percentage"))
             {
                 return;
             }
+            Download d = new Download(new Uri("http://" + host + "/stream.php"), key, m_cc, song);
+            d.Progress += new EventHandler(d_Progress);
+            return;
             CookieAwareWebClient wc = new CookieAwareWebClient(m_cc);
             //!FIXME Segmented downloads
             NameValueCollection nvc = new NameValueCollection();
             nvc.Add("streamKey", key);
             wc.UploadProgressChanged += new UploadProgressChangedEventHandler(wc_UploadProgressChanged);
             wc.UploadValuesCompleted += new UploadValuesCompletedEventHandler(wc_DownloadStream);
-            wc.UploadValuesAsync(new Uri("http://"+host+"/stream.php"), "POST", nvc, song);
+            wc.UploadValuesAsync(new Uri("http://" + host + "/stream.php"), "POST", nvc, song);
+        }
+
+        void d_Progress(object sender, EventArgs e)
+        {
+            Download d = (Download)sender;
+            long percentage = (d.Downloaded * 100) / d.Total;
+            JObject song = d.Song;
+            song["Percentage"] = percentage;
+            DownloadProgress(this, song, percentage);
         }
 
         void wc_DownloadStream(object sender, UploadValuesCompletedEventArgs e)
         {
             JObject song = (JObject)e.UserState;
             string filename = (string)song["ArtistName"] + " - " + (string)song["Name"] + ".mp3";
-            song["Downloaded"] = 100;
+            song["Percentage"] = 100;
             string dst = "";
             string path = "";
             if (Main.PATH.Length != 0)
@@ -206,7 +218,7 @@ namespace SharkIt
         {
             JObject song = (JObject)e.UserState;
             long percentage = (e.BytesReceived * 100) / e.TotalBytesToReceive;
-            song["Downloaded"] = percentage;
+            song["Percentage"] = percentage;
             DownloadProgress(this, song, percentage);
         }
 
@@ -216,8 +228,8 @@ namespace SharkIt
         void getPlaylistsHandler(object sender, UploadStringCompletedEventArgs e)
         {
             m_playlists = new LinkedList<Playlist>();
-            JObject response = (JObject) JSON.JsonDecode(e.Result);
-            JObject result = (JObject) response["result"];
+            JObject response = (JObject)JSON.JsonDecode(e.Result);
+            JObject result = (JObject)response["result"];
             ArrayList pl = (ArrayList)(result["Playlists"]);
             foreach (JObject t in pl)
             {
@@ -277,7 +289,7 @@ namespace SharkIt
             object[] state = (object[])e.UserState;
             JObject song = (JObject)state[0];
             GetStreamKeyHandler handler = (GetStreamKeyHandler)state[1];
-            JObject result = (JObject)((JObject) JSON.JsonDecode(e.Result))["result"];
+            JObject result = (JObject)((JObject)JSON.JsonDecode(e.Result))["result"];
             handler(song, (string)result["ip"], (string)result["streamKey"], state[2]);
         }
 
@@ -349,7 +361,7 @@ namespace SharkIt
             string t = GenerateToken(method, (string)header["client"]);
             header.Add("token", t);
 
-            string requestStr = JSON.JsonEncode(request).Replace("\n", "").Replace(" ", "").Replace("\r","");
+            string requestStr = JSON.JsonEncode(request).Replace("\n", "").Replace(" ", "").Replace("\r", "");
             CookieAwareWebClient wc = new CookieAwareWebClient(m_cc);
             wc.UploadStringCompleted += handler;
             wc.UploadStringAsync(new Uri(uri + method), "POST", requestStr, handlerToken);
@@ -361,7 +373,7 @@ namespace SharkIt
         {
             m_lastRandomizer = Randomize();
             string secret = client == "htmlshark" ? "neverGonnaGiveYouUp" : "neverGonnaLetYouDown";
-            string r = SHA1(method + ":" + m_token + ":" + secret +":" + m_lastRandomizer);
+            string r = SHA1(method + ":" + m_token + ":" + secret + ":" + m_lastRandomizer);
             string t = m_lastRandomizer + r;
             return t;
         }
@@ -389,14 +401,14 @@ namespace SharkIt
         void getTokenHandler(object sender, UploadStringCompletedEventArgs e)
         {
             JObject response = (JObject)JSON.JsonDecode(e.Result);
-            string token = (string) response["result"];
+            string token = (string)response["result"];
             m_token = token;
             GotToken(this, token);
         }
 
         private string GetCookie(string key)
         {
-            foreach(Cookie cookie in m_cc.GetCookies(m_uri))
+            foreach (Cookie cookie in m_cc.GetCookies(m_uri))
                 if (cookie.Name.Equals(key))
                     return cookie.Value;
             return null;
@@ -422,6 +434,6 @@ namespace SharkIt
             for (int i = 0; i < data.Length; i++)
                 ret += data[i].ToString("x2").ToLower();
             return ret;
-        } 
+        }
     }
 }

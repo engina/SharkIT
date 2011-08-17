@@ -151,7 +151,7 @@
             this.Controls.Add(this.playlistsCLB);
             this.MinimumSize = new System.Drawing.Size(550, 38);
             this.Name = "Main";
-            this.Text = "SharkIT v0.5";
+            this.Text = "SharkIT v0.6-beta";
             this.ResumeLayout(false);
             this.PerformLayout();
 

@@ -68,6 +68,7 @@
     <Compile Include="CookieAwareWebClient.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="Download.cs" />
     <Compile Include="DownloadJob.cs" />
     <Compile Include="DownloadSongJob.cs" />
     <Compile Include="GrooveShark\API.cs" />
@@ -113,6 +114,7 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
+    <Compile Include="Segment.cs" />
     <Compile Include="SharkIt.cs">
       <SubType>Form</SubType>
     </Compile>

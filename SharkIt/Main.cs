@@ -35,7 +35,6 @@ namespace SharkIt
 
             // Use the icon from the application binary instead of saving another copy in resource file
             this.Icon = Icon.ExtractAssociatedIcon(Application.ExecutablePath);
-
             m_gs = new GS();
             m_gs.RequestSent += new GS.RequestSentHandler(m_gs_RequestSent);
             m_gs.GotSID += new GS.GotSIDHandler(gs_GotSID);
@@ -80,10 +79,11 @@ namespace SharkIt
                 return;
             }
             string str = (string)song["ArtistName"] + " - " + (string)song["Name"] + ".mp3";
-            if(song.ContainsKey("Downloaded"))
-                str += " ("+song["Downloaded"].ToString()+"%)";
+            if (song.ContainsKey("Percentage"))
+                str += " ("+song["Percentage"].ToString()+"%) "+ /* song["Downloaded"]+"/"+song["Total"] + " "*/ + (int)((double)song["Rate"])+ " kb/sec";
             e.Value = str;
         }
+
         private object m_lastSelected = null;
         void playlsitsCLB_SelectedValueChanged(object sender, EventArgs e)
         {
@@ -151,6 +151,10 @@ namespace SharkIt
             log("Token: " + token);
             connectB.Enabled = true;
             connectB.Text = "log-in";
+            return;
+            JObject song = new JObject();
+            song["SongID"] = "28996885";
+            m_gs.GetStreamKey(song, new GS.GetStreamKeyHandler(m_gs_GotStream), null); 
         }
 
         private delegate void GOTSIDDelegate(object sender, string e);
