@@ -22,6 +22,7 @@ namespace SharkIt
         private const string URI = "http://listen.grooveshark.com";
         GS m_gs;
         API m_api;
+        string m_title;
         public Main()
         {
             InitializeComponent();
@@ -46,7 +47,31 @@ namespace SharkIt
             playlistsCLB.SelectedValueChanged += new EventHandler(playlsitsCLB_SelectedValueChanged);
             songsCLB.Format += new ListControlConvertEventHandler(songsCLB_Format);
             playlistsCLB.Format += new ListControlConvertEventHandler(playlistsCLB_Format);
+            System.Windows.Forms.Timer t = new System.Windows.Forms.Timer();
+            t.Interval = 500;
+            t.Tick += new EventHandler(t_Tick);
+            t.Start();
+            m_title = "SharkIT v0.6beta";
+            Text = m_title;
         }
+
+        void t_Tick(object sender, EventArgs e)
+        {
+            while (m_updateQueue.Count > 0)
+            {
+                UpdateSongInfo(m_updateQueue.Dequeue());
+            }
+            double rate = 0;
+            foreach (JObject song in songsCLB.Items)
+            {
+                if (song.ContainsKey("Rate"))
+                    rate += (double)song["Rate"];
+            }
+            Text = m_title;
+            if(rate > 0)
+                Text += " " + (int)rate + " kb/sec";
+        }
+
 
         void playlistsCLB_Format(object sender, ListControlConvertEventArgs e)
         {
@@ -65,6 +90,8 @@ namespace SharkIt
         }
 
         delegate void DownloadProgress(object s, JObject song, long p);
+
+        Queue<JObject> m_updateQueue = new Queue<JObject>();
         void m_gs_DownloadProgress(object sender, JObject song, long percentage)
         {
             if (InvokeRequired)
@@ -74,6 +101,17 @@ namespace SharkIt
             }
 
             log("Downloading " + (string)song["Name"] + " " + percentage + "%");
+            
+            if (percentage > 90 && !song.ContainsKey("AlreadyTriggered"))
+            {
+                song["AlreadyTriggered"] = true;
+                Dequeue(1);
+            }
+            m_updateQueue.Enqueue(song);
+        }
+
+        void UpdateSongInfo(JObject song)
+        {
             int i = songsCLB.Items.IndexOf(song);
             Rectangle r = songsCLB.GetItemRectangle(i);
             songsCLB.Invalidate(r);
@@ -88,6 +126,8 @@ namespace SharkIt
                 return;
             }
             string str = (string)song["ArtistName"] + " - " + (string)song["Name"] + ".mp3";
+            if(song.ContainsKey("Status"))
+                str += " [" + song["Status"] + "]";
             if (song.ContainsKey("Percentage"))
                 str += " ("+song["Percentage"].ToString()+"%) "+ /* song["Downloaded"]+"/"+song["Total"] + " "*/ + (int)((double)song["Rate"])+ " kb/sec";
             e.Value = str;
@@ -181,7 +221,7 @@ namespace SharkIt
 
         private void log(string str)
         {
-            logTB.Text += str + "\r\n";
+            // logTB.Text += str + "\r\n";
         }
 
         private void connectB_Click(object sender, EventArgs e)
@@ -199,13 +239,31 @@ namespace SharkIt
         {
         }
 
+        Queue<JObject> m_downloadQueue = new Queue<JObject>();
+
         private void downloadB_Click(object sender, EventArgs e)
         {
             foreach (object item in songsCLB.CheckedItems)
             {
                 JObject song = (JObject)item;
-                // downloadsCBL.Items.Add(new DownloadSongJob(new Song(song)));
+                m_downloadQueue.Enqueue(song);
+                song["Status"] = "Queued";
+            }
+            Dequeue(2);
+        }
+
+        const int MAX_CONCURRENT_DOWNLOADS = 2;
+
+        void Dequeue(int max)
+        {
+            int i = 0;
+            while (m_downloadQueue.Count > 0)
+            {
+                if (i++ >= max) return;
+                JObject song = m_downloadQueue.Dequeue();
+                song["Status"] = "Getting busy";
                 m_gs.GetStreamKey(song, new GS.GetStreamKeyHandler(m_gs_GotStream), null);
+                songsCLB.Invalidate();
             }
         }
 
