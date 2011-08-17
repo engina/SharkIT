@@ -51,7 +51,7 @@ namespace SharkIt
             t.Interval = 500;
             t.Tick += new EventHandler(t_Tick);
             t.Start();
-            m_title = "SharkIT v0.6beta";
+            m_title = "SharkIt v0.6beta";
             Text = m_title;
         }
 

@@ -1,3 +1,9 @@
-Grooveshark downloader
+SharkIt Grooveshark downloader
 
-Very initial draft. Dirty code.
+This has started as an experiment on writing code real fast. I studied
+Grooveshark and implemented this code in a matter of hours and also
+continued to do so when adding features. Hence, this code does not reflect
+best practices.
+
+Conclusion so far; getting things done fast in a non-prefectionist manner is
+quite satisfying.
