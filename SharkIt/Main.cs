@@ -23,9 +23,14 @@ namespace SharkIt
         GS m_gs;
         API m_api;
         string m_title;
+        Logger m_logger;
         public Main()
         {
             InitializeComponent();
+            m_title = "SharkIt v0.7beta";
+            Text = m_title;
+            m_logger = new Logger(this.GetType().ToString());
+            m_logger.Info(m_title + " started");
             PATH = Properties.Settings.Default.Path;
             userNameTB.Text = Properties.Settings.Default.Username;
             passTB.Text = Properties.Settings.Default.Password;
@@ -51,8 +56,6 @@ namespace SharkIt
             t.Interval = 500;
             t.Tick += new EventHandler(t_Tick);
             t.Start();
-            m_title = "SharkIt v0.7beta";
-            Text = m_title;
 
             Timer clipboardWatcher = new Timer();
             clipboardWatcher.Interval = 100;

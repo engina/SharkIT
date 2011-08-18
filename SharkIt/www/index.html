@@ -55,17 +55,34 @@
 <fb:like action ="recommend" href="http://engin.bzzzt.biz/sharkit/" show_faces="false"></fb:like>
 <div style="font-size: 9px; color: grey; margin-top: -3px; border-top: 1px solid grey; width: 120px">Grooveshark downloader</div>
 <div class="body">
-	SharkIT is a Grooveshark downloader. It allows you to fetch your playlists, select songs in your playlists and download them all in parallel, with one click. I've coded this in a few hours, it is full of bugs, it does not handle errors (you won't be warned if you typed your password wrong, etc). But it looks like working for now.
-	<p>
-	BTW, anyone can think of a cool name ?
-	<p>
+	SharkIT is a Grooveshark downloader. It allows you to fetch your playlists, select songs in your playlists and 
+    download them in parallel with multiple connections for each.
+
+    <p>
+    The reason this project exist is that I'm experiencing a new way of programming. Quickly hacking a solution together to
+    get the job done instead of losing time on conceiving the perfect design and implementation. What this means for you,
+    the end user, is that you should expect app crashes when something unexpected, such as network failure, happen.
+    <p>
+    Hidden feature: it can grab playlist URLs from clipboard and directly add them to the playlist list.
+    <p>
 		<img src="screenshot.png?v4">
 </div>
 <div class="download">
-	<a style="text-decoration: none; color: orange" ="Download" href="SharkIt-v05.exe">Download v0.5 (59kb)</a> | <a style="text-decoration: none; color: orange" ="Download" href="SharkIt-v06beta.exe">Download v0.6beta (67kb)</a><br/>
+	<a style="text-decoration: none; color: orange" ="Download" href="SharkIt-v05.exe">Download v0.5 (59kb)</a> | <a style="text-decoration: none; color: orange" ="Download" href="SharkIt-v07beta.exe">Download v0.7beta (70kb)</a><br/>
 	<span style="font-size: 12px; color: gray; font-weight: normal">Single executable, no-need to install.</span>
 </div><p/>
 <h3>Changelog</h3>
+
+<h4>20110818 - v0.7beta</h4>
+<div>
+<ul>
+    <li>Now grabs playlist URLs from clipboard -- hence it is not required to have a grooveshark account now.
+    Just copy this <b>http://grooveshark.com/#/playlist/Radio/58487166</b> as a test.</li>
+    <li>Basic logging support for hunting bugs to come. sharkit.log will be created in the working directory of the exe itself.</li>
+</ul>
+</div>
+<hr>
+
 <h4>20110818 - v0.6beta</h4>
 <div>
 <ul>

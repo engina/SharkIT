@@ -16,7 +16,7 @@ namespace SharkIt
         }
 
         private static object m_lock = new object();
-        private static StreamWriter m_ts = File.AppendText("log.txt");
+        private static StreamWriter m_ts = File.CreateText("sharkit.log");
 
         public static void Log(Level lvl, string source, string msg)
         {
