@@ -32,6 +32,8 @@ namespace SharkIt
             m_logger = new Logger(this.GetType().ToString());
             m_logger.Info(m_title + " started");
             PATH = Properties.Settings.Default.Path;
+            if (PATH.Length == 0)
+                PATH = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
             userNameTB.Text = Properties.Settings.Default.Username;
             passTB.Text = Properties.Settings.Default.Password;
             /*
