@@ -28,6 +28,7 @@ namespace SharkIt
         public event EventHandler Completed;
         public event EventHandler Progress;
 
+        Logger m_logger;
         public Segment(Uri uri, CookieContainer cc, string key, int start, int end, string path)
         {
             m_uri = uri;
@@ -38,6 +39,8 @@ namespace SharkIt
             m_path = path;
             //Console.WriteLine("Starting segment " + start + "-" + end);
             m_filename = path + "_" + start.ToString("00000000") + "_" + end.ToString("00000000") + ".sharkit";
+            string source = this.GetType().ToString() + " " + Path.GetFileName(path) + " " + start + "-" + end;
+            m_logger = new Logger(source);
             //m_fs = new FileStream(m_filename, FileMode.Create, FileAccess.Write);
             //m_fs.Close();
             //File.SetAttributes(m_filename, FileAttributes.Hidden);
@@ -75,6 +78,7 @@ namespace SharkIt
 
         void Connect()
         {
+            m_logger.Info("Connecting");
             m_client = new TcpClient();
             m_client.BeginConnect(m_uri.Host, 80, new AsyncCallback(ConnectHandler), null);
         }
@@ -85,16 +89,18 @@ namespace SharkIt
             sock.EndConnect(ar);
             if (!sock.Connected)
             {
-                Console.WriteLine("Retrying " + m_path);
+                m_logger.Warning("Retrying to connect");
                 Connect();
                 return;
             }
+            m_logger.Info("Connected");
             sock.Send(Encoding.ASCII.GetBytes(m_header));
             sock.BeginReceive(m_buf, 0, m_buf.Length, SocketFlags.None, new AsyncCallback(WaitContinueHandler), null);
         }
 
         void WaitContinueHandler(IAsyncResult ar)
         {
+            m_logger.Debug("WaitContinueHandler");
             if (!ar.IsCompleted) return;
             Socket sock = m_client.Client;
 
@@ -102,13 +108,17 @@ namespace SharkIt
 
             string response = Encoding.ASCII.GetString(m_buf);
             if (!response.StartsWith("HTTP/1.1 100 Continue\r\n\r\n"))
+            {
+                m_logger.Error("Expecting HTTP 100, got: " + response);
                 throw new Exception("oops");
+            }
             sock.Send(Encoding.ASCII.GetBytes(m_body));
             sock.BeginReceive(m_buf, 0, m_buf.Length, SocketFlags.None, new AsyncCallback(WaitHeaderHandler), null);
         }
 
         void WaitHeaderHandler(IAsyncResult ar)
         {
+            m_logger.Debug("WaitHeaderHandler");
             if (!ar.IsCompleted) return;
             Socket sock = m_client.Client;
             int read = sock.EndReceive(ar);
@@ -119,8 +129,10 @@ namespace SharkIt
             string respCode = tokens[0];
 
             if (!respCode.StartsWith("HTTP/1.1 206 Partial Content"))
+            {
+                m_logger.Error("Expecting HTTP 206, got: " + respCode);
                 throw new Exception("wtf");
-
+            }
             tokens.RemoveAt(0);
 
             foreach (string token in tokens)
@@ -153,8 +165,10 @@ namespace SharkIt
             if (read == 0)
             {
                 m_total = m_fs.Position;
-                if (m_total != (m_end - m_start))
-                    Console.WriteLine("Incomplete download " + m_path);
+                if (m_total != (m_end - m_start + 1))
+                    m_logger.Error("Incomplete download " + m_path);
+                else
+                    m_logger.Info("Completed");
                 m_bw.Close();
                 sock.Close();
                 m_completed = true;

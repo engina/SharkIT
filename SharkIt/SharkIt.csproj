@@ -78,6 +78,8 @@
     <Compile Include="GS.cs" />
     <Compile Include="JObject.cs" />
     <Compile Include="JSON.cs" />
+    <Compile Include="Logger.cs" />
+    <Compile Include="LogManager.cs" />
     <Compile Include="Main.cs">
       <SubType>Form</SubType>
     </Compile>

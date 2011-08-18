@@ -19,6 +19,7 @@ namespace SharkIt
         int m_total = 0;
         JObject m_song;
         FileStream m_fs;
+        Logger m_logger;
 
         public event EventHandler Progress;
 
@@ -28,9 +29,10 @@ namespace SharkIt
             m_key = key;
             m_cc = cc;
             m_song = song;
-
+            
             song["Status"] = "Opening file";
             string filename = (string)song["ArtistName"] + " - " + (string)song["Name"] + ".mp3";
+            m_logger = new Logger(this.GetType().ToString() + " " + filename);
             string dst = "";
             string path = "";
             if (Main.PATH.Length != 0)
@@ -72,6 +74,7 @@ namespace SharkIt
                 }
             }
 
+            m_logger.Info("Starting download");
             song["Status"] = "Starting download";
             Segment s = new Segment(uri, cc, key, 0, SEGMENT_SIZE-1, m_path);
             m_segments.Add(s);
@@ -120,6 +123,7 @@ namespace SharkIt
                 s.Start();
                 total -= SEGMENT_SIZE;
             }
+            m_logger.Info("Splitted in " + m_segments.Count + " segments");
         }
 
         public long Downloaded
@@ -143,14 +147,13 @@ namespace SharkIt
 
         void s_Completed(object sender, EventArgs e)
         {
-            Console.WriteLine("Total segments: " + m_segments.Count);
             foreach (Segment s in m_segments)
             {
                 if (!s.IsCompleted) return;
             }
             m_end = DateTime.Now;
             double elapsed = (m_end-m_start).TotalSeconds;
-            Console.WriteLine("Completed in " + elapsed + " seconds " + (m_total/elapsed/1024) + " kb/sec");
+            m_logger.Info("Completed in " + elapsed + " seconds " + (m_total/elapsed/1024) + " kb/sec");
             m_song["Status"] = "Done";
             m_song["Rate"] = 0.0d;
             foreach (Segment s in m_segments)
