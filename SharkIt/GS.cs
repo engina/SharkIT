@@ -241,7 +241,7 @@ namespace SharkIt
             GotPlaylists(this, m_playlists);
         }
 
-        void _populatePlaylist(Playlist p)
+        public void _populatePlaylist(Playlist p)
         {
             JObject param = new JObject();
             param.Add("playlistID", p["PlaylistID"]);

@@ -7,11 +7,11 @@ using System.Text;
 using System.Windows.Forms;
 using System.Net;
 using System.Collections.Specialized;
-using System.Threading;
 using System.Security.Cryptography;
 using System.IO;
 using SharkIt.GrooveShark;
 using System.Collections;
+
 
 namespace SharkIt
 {
@@ -47,12 +47,40 @@ namespace SharkIt
             playlistsCLB.SelectedValueChanged += new EventHandler(playlsitsCLB_SelectedValueChanged);
             songsCLB.Format += new ListControlConvertEventHandler(songsCLB_Format);
             playlistsCLB.Format += new ListControlConvertEventHandler(playlistsCLB_Format);
-            System.Windows.Forms.Timer t = new System.Windows.Forms.Timer();
+            Timer t = new Timer();
             t.Interval = 500;
             t.Tick += new EventHandler(t_Tick);
             t.Start();
-            m_title = "SharkIt v0.6beta";
+            m_title = "SharkIt v0.7beta";
             Text = m_title;
+
+            Timer clipboardWatcher = new Timer();
+            clipboardWatcher.Interval = 100;
+            clipboardWatcher.Tick += new EventHandler(clipboardWatcher_Tick);
+            clipboardWatcher.Start();
+        }
+
+        string m_clipboard = "";
+        void clipboardWatcher_Tick(object sender, EventArgs e)
+        {
+            string clipboard = Clipboard.GetText();
+            if(clipboard == m_clipboard) return;
+            m_clipboard = clipboard;
+            const string playlistURL = "http://grooveshark.com/#/playlist/";
+            if (!m_clipboard.StartsWith(playlistURL)) return;
+            string[] tokens = m_clipboard.Substring(playlistURL.Length).Split('/');
+            string name = tokens[0];
+            string id = tokens[1];
+
+            foreach (Playlist pl in playlistsCLB.Items)
+                if ((string)pl["PlaylistID"] == id) return;
+
+            Hashtable h = new Hashtable();
+            Playlist p = new Playlist(h);
+            p["Name"] = name;
+            p["PlaylistID"] = id;
+            m_gs._populatePlaylist(p);
+            playlistsCLB.Items.Add(p);
         }
 
         void t_Tick(object sender, EventArgs e)
@@ -296,6 +324,11 @@ namespace SharkIt
             bool check = e.NewValue == CheckState.Checked;
             for (int i = 0; i < songsCLB.Items.Count; i++)
                 songsCLB.SetItemCheckState(i, e.NewValue);
+        }
+
+        private void gotoFolderB_Click(object sender, EventArgs e)
+        {
+            System.Diagnostics.Process.Start(PATH);
         }
     }
 }

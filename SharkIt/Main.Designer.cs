@@ -40,6 +40,7 @@
             this.folderBrowserDialog1 = new System.Windows.Forms.FolderBrowserDialog();
             this.systemTray = new System.Windows.Forms.NotifyIcon(this.components);
             this.systemTrayCM = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.gotoFolderB = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // userNameTB
@@ -101,13 +102,13 @@
             this.songsCLB.FormattingEnabled = true;
             this.songsCLB.Location = new System.Drawing.Point(160, 30);
             this.songsCLB.Name = "songsCLB";
-            this.songsCLB.Size = new System.Drawing.Size(371, 319);
+            this.songsCLB.Size = new System.Drawing.Size(496, 319);
             this.songsCLB.TabIndex = 5;
             // 
             // downloadB
             // 
             this.downloadB.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.downloadB.Location = new System.Drawing.Point(456, 4);
+            this.downloadB.Location = new System.Drawing.Point(581, 4);
             this.downloadB.Name = "downloadB";
             this.downloadB.Size = new System.Drawing.Size(75, 23);
             this.downloadB.TabIndex = 6;
@@ -118,7 +119,7 @@
             // folderB
             // 
             this.folderB.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.folderB.Location = new System.Drawing.Point(375, 4);
+            this.folderB.Location = new System.Drawing.Point(500, 4);
             this.folderB.Name = "folderB";
             this.folderB.Size = new System.Drawing.Size(75, 23);
             this.folderB.TabIndex = 7;
@@ -136,11 +137,23 @@
             this.systemTrayCM.Name = "systemTrayCM";
             this.systemTrayCM.Size = new System.Drawing.Size(61, 4);
             // 
+            // gotoFolderB
+            // 
+            this.gotoFolderB.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.gotoFolderB.Location = new System.Drawing.Point(419, 4);
+            this.gotoFolderB.Name = "gotoFolderB";
+            this.gotoFolderB.Size = new System.Drawing.Size(75, 23);
+            this.gotoFolderB.TabIndex = 8;
+            this.gotoFolderB.Text = "go to folder";
+            this.gotoFolderB.UseVisualStyleBackColor = true;
+            this.gotoFolderB.Click += new System.EventHandler(this.gotoFolderB_Click);
+            // 
             // Main
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(534, 352);
+            this.ClientSize = new System.Drawing.Size(659, 352);
+            this.Controls.Add(this.gotoFolderB);
             this.Controls.Add(this.userNameTB);
             this.Controls.Add(this.passTB);
             this.Controls.Add(this.songsCLB);
@@ -170,6 +183,7 @@
         private System.Windows.Forms.FolderBrowserDialog folderBrowserDialog1;
         private System.Windows.Forms.NotifyIcon systemTray;
         private System.Windows.Forms.ContextMenuStrip systemTrayCM;
+        private System.Windows.Forms.Button gotoFolderB;
     }
 }
 
