@@ -85,8 +85,8 @@
             // 
             // playlistsCLB
             // 
-            this.playlistsCLB.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-                        | System.Windows.Forms.AnchorStyles.Left)));
+            this.playlistsCLB.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left)));
             this.playlistsCLB.FormattingEnabled = true;
             this.playlistsCLB.Location = new System.Drawing.Point(5, 30);
             this.playlistsCLB.Name = "playlistsCLB";
@@ -96,9 +96,9 @@
             // 
             // songsCLB
             // 
-            this.songsCLB.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-                        | System.Windows.Forms.AnchorStyles.Left)
-                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.songsCLB.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.songsCLB.FormattingEnabled = true;
             this.songsCLB.Location = new System.Drawing.Point(160, 30);
             this.songsCLB.Name = "songsCLB";
@@ -164,7 +164,7 @@
             this.Controls.Add(this.playlistsCLB);
             this.MinimumSize = new System.Drawing.Size(550, 38);
             this.Name = "Main";
-            this.Text = "SharkIT v0.6-beta";
+            this.Text = "SharkIT v0.8";
             this.ResumeLayout(false);
             this.PerformLayout();
 

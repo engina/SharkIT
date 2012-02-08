@@ -44,11 +44,12 @@ namespace SharkIt
         {
             /** just create some default country for now **/
             m_countryObj.Add("CC4", "2097152");
-            m_countryObj.Add("IPR", "9581");
+            m_countryObj.Add("IPR", "0");
             m_countryObj.Add("CC2", "0");
             m_countryObj.Add("CC1", "0");
             m_countryObj.Add("ID", "214");
             m_countryObj.Add("CC3", "0");
+            m_countryObj.Add("DMA", "0");
 
             /* I'm using TcpClient instead of WebClient here because I just want the cookie
              * in the HTTP header not the whole document. WebClient does not function before
@@ -90,6 +91,7 @@ namespace SharkIt
                         if (name == "PHPSESSID")
                         {
                             m_sid = value;
+                            m_cc.Add(new Cookie(name, value, "/", "https://grooveshark.com"));
                             m_cc.Add(new Cookie(name, value, "/", "http://grooveshark.com"));
                             GotSID(this, m_sid);
                             GetToken();
@@ -338,10 +340,10 @@ namespace SharkIt
             JObject header = new JObject();
             header.Add("session", m_sid);
             header.Add("client", "jsqueue");
-            header.Add("clientRevision", "20110722.09");
+            header.Add("clientRevision", "20120123.02");
             header.Add("privacy", 0);
             // Somehow this uuid is important, and I don't really know what it is, the UUID of the JSQueue flash object ?
-            header.Add("uuid", "03ACA04C-42C9-4BA5-A2ED-C9241040A88D");
+            header.Add("uuid", "E1AA0D1D-86EF-4CE2-AEC9-F70358E2535E");
             header.Add("country", m_countryObj);
             request.Add("header", header);
             request.Add("method", method);
@@ -372,7 +374,7 @@ namespace SharkIt
         private string GenerateToken(string method, string client)
         {
             m_lastRandomizer = Randomize();
-            string secret = client == "htmlshark" ? "neverGonnaGiveYouUp" : "neverGonnaLetYouDown";
+            string secret = client == "htmlshark" ? "sloppyJoes" : "ieSuxBalz";
             string r = SHA1(method + ":" + m_token + ":" + secret + ":" + m_lastRandomizer);
             string t = m_lastRandomizer + r;
             return t;
@@ -393,9 +395,9 @@ namespace SharkIt
         {
             CookieAwareWebClient wc = new CookieAwareWebClient(m_cc);
             string secret = MD5SUM(m_sid);
-            string getCommunicationToken = "{\"parameters\":{\"secretKey\":\"" + secret + "\"},\"header\":{\"country\":{\"ID\":\"214\",\"CC1\":\"0\",\"CC2\":\"0\",\"CC3\":\"0\",\"IPR\":\"9581\",\"CC4\":\"2097152\"},\"privacy\":0,\"clientRevision\":\"20110722.09\",\"uuid\":\"03ACA04C-42C9-4BA5-A2ED-C9241040A88D\",\"session\":\"" + m_sid + "\",\"client\":\"htmlshark\"},\"method\":\"getCommunicationToken\"}";
+            string getCommunicationToken = "{\"parameters\":{\"secretKey\":\"" + secret + "\"},\"header\":{\"country\":{\"ID\":\"214\",\"CC1\":\"0\",\"CC2\":\"0\",\"CC3\":\"0\",\"IPR\":\"9581\",\"CC4\":\"2097152\"},\"privacy\":0,\"clientRevision\":\"20120123.02\",\"uuid\":\"E1AA0D1D-86EF-4CE2-AEC9-F70358E2535E\",\"session\":\"" + m_sid + "\",\"client\":\"jsqueue\"},\"method\":\"getCommunicationToken\"}";
             wc.UploadStringCompleted += new UploadStringCompletedEventHandler(getTokenHandler);
-            wc.UploadStringAsync(new Uri("http://grooveshark.com/more.php?getCommunicationToken"), getCommunicationToken);
+            wc.UploadStringAsync(new Uri("https://grooveshark.com/more.php?getCommunicationToken"), getCommunicationToken);
         }
 
         void getTokenHandler(object sender, UploadStringCompletedEventArgs e)

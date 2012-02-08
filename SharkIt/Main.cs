@@ -27,7 +27,7 @@ namespace SharkIt
         public Main()
         {
             InitializeComponent();
-            m_title = "SharkIt v0.7beta";
+            m_title = "SharkIt v0.8beta";
             Text = m_title;
             m_logger = new Logger(this.GetType().ToString());
             m_logger.Info(m_title + " started");
@@ -71,7 +71,7 @@ namespace SharkIt
             string clipboard = Clipboard.GetText();
             if(clipboard == m_clipboard) return;
             m_clipboard = clipboard;
-            const string playlistURL = "http://grooveshark.com/#/playlist/";
+            const string playlistURL = "http://grooveshark.com/#!/playlist/";
             if (!m_clipboard.StartsWith(playlistURL)) return;
             string[] tokens = m_clipboard.Substring(playlistURL.Length).Split('/');
             string name = tokens[0];
